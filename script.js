@@ -35891,3 +35891,40 @@ Webflow.require("ix2").init({
     ],
   },
 });
+
+/*
+ * Newsletter Form Handling
+ */
+document.getElementById('newsletter-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const form = e.target;
+  const submitButton = form.querySelector('button');
+  const messageDiv = document.getElementById('newsletter-message');
+  
+  submitButton.disabled = true;
+  submitButton.textContent = 'Subscribing...';
+  
+  try {
+    const response = await fetch('/api/subscribe', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email: form.email.value })
+    });
+
+    const data = await response.json();
+    messageDiv.textContent = response.ok ? 'Thanks for subscribing!' : data.error;
+    
+    if (response.ok) {
+      form.reset();
+    }
+  } catch (error) {
+    messageDiv.textContent = 'Something went wrong. Please try again.';
+    console.error('Newsletter submission error:', error);
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = 'Subscribe';
+  }
+});
